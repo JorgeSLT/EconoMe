@@ -35,8 +35,8 @@ class SignInActivity : AppCompatActivity() {
                 auth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
                     if (it.isSuccessful) {
                         // Usuario logeado con éxito
-                        auth.signOut()
                         Toast.makeText(this, "Successfully sign in", Toast.LENGTH_SHORT).show()
+
 
                         val intent = Intent(this, HomeActivity::class.java)
                         startActivity(intent)
@@ -48,6 +48,18 @@ class SignInActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+
+        binding.tvCreateAccount.setOnClickListener {
+            val intent = Intent(this, SignUpActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+        binding.tvForgotPassword.setOnClickListener {
+            val intent = Intent(this, ForgotPasswordActivity::class.java)
+            startActivity(intent)
+            finish()
         }
     }
 

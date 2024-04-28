@@ -2,6 +2,8 @@ package com.example.econome
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -30,5 +32,35 @@ class HomeActivity : AppCompatActivity() {
             finish()
         }
 
+        binding.btnUpdatePassword.setOnClickListener {
+            val user = auth.currentUser
+            val password = binding.etPassword.text.toString()
+
+            if(checkPasswordField()){
+                user?.updatePassword(password)?.addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        Toast.makeText(this, "Updated successfully", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Log.e("UpdatePasswordError", "Failed to update password", it.exception)
+                        Toast.makeText(this, "Failed to update password: ${it.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+
+    }
+
+    private fun checkPasswordField(): Boolean{
+        if(binding.etPassword.text.toString()==""){
+            binding.textInputLayoutPassword.error="This field is required"
+            binding.textInputLayoutPassword.errorIconDrawable = null
+            return false
+        }
+        if(binding.etPassword.length()<=6){
+            binding.textInputLayoutPassword.error="Password should at least have 7 characters"
+            binding.textInputLayoutPassword.errorIconDrawable = null
+            return false
+        }
+        return true
     }
 }

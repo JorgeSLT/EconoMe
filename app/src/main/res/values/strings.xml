@@ -6,4 +6,8 @@
     <string name="confirm_password">Confirm password</string>
     <string name="sign_in">Sign In</string>
     <string name="sign_out">Sign out</string>
+    <string name="forgot_password">Forgot password</string>
+    <string name="create_account">Create account</string>
+    <string name="confirm">Confirm</string>
+    <string name="update">Update</string>
 </resources>

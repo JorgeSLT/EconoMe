@@ -1,5 +1,6 @@
 package com.example.econome
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.util.Patterns
@@ -35,6 +36,10 @@ class SignUpActivity : AppCompatActivity() {
                         // Usuario registrado con éxito
                         auth.signOut()
                         Toast.makeText(this, "Account created successfully", Toast.LENGTH_SHORT).show()
+
+                        val intent = Intent(this, SignInActivity::class.java)
+                        startActivity(intent)
+                        finish()
                     } else {
                         // Error durante el registro
                         Log.e("SignUpError", "Failed to register user", it.exception)
