@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "636662687974",
+    "project_id": "econome-f5ec0",
+    "storage_bucket": "econome-f5ec0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:636662687974:android:b1213cc0db2559deea3327",
+        "android_client_info": {
+          "package_name": "com.example.econome"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMaQdXd3C2DEj-23LejtJukI0XJ69KnpE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
