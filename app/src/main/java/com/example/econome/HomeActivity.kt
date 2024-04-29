@@ -65,6 +65,25 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
+        binding.btnDelete.setOnClickListener {
+            val user = auth.currentUser
+
+            user?.delete()?.addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        Toast.makeText(this, "Account deleted successfully", Toast.LENGTH_SHORT).show()
+
+                        val intent = Intent(this, SignInActivity::class.java)
+                        startActivity(intent)
+
+                        finish()
+                    } else {
+                        Log.e("DeleteAccountError", "Failed to delete account", it.exception)
+                        Toast.makeText(this, "Failed to delete account: ${it.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
+                    }
+            }
+
+        }
+
     }
 
     private fun checkPasswordField(): Boolean{
