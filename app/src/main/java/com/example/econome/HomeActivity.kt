@@ -11,10 +11,13 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.econome.databinding.ActivityHomeBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class HomeActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: ActivityHomeBinding
+
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,6 +26,7 @@ class HomeActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
 
         binding.btnSignout.setOnClickListener {
             auth.signOut()
@@ -32,6 +36,14 @@ class HomeActivity : AppCompatActivity() {
 
             finish()
         }
+
+        val name = auth.currentUser.toString()
+        db.collection("users").document(name).set(
+            hashMapOf("email" to "jorgesltm@gmail.com",
+                      "nombre" to "Jorge",
+                      "Telefono" to 958131313)
+        )
+
 
         binding.btnUpdatePassword.setOnClickListener {
             val user = auth.currentUser
