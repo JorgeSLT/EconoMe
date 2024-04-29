@@ -3,6 +3,7 @@ package com.example.econome
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.util.Patterns
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -39,10 +40,26 @@ class HomeActivity : AppCompatActivity() {
             if(checkPasswordField()){
                 user?.updatePassword(password)?.addOnCompleteListener {
                     if (it.isSuccessful) {
-                        Toast.makeText(this, "Updated successfully", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "Password updated successfully", Toast.LENGTH_SHORT).show()
                     } else {
                         Log.e("UpdatePasswordError", "Failed to update password", it.exception)
                         Toast.makeText(this, "Failed to update password: ${it.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+
+        binding.btnUpdateEmail.setOnClickListener {
+            val user = auth.currentUser
+            val email = binding.etEmail.text.toString()
+
+            if(checkEmailField()){
+                user?.verifyBeforeUpdateEmail(email)?.addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        Toast.makeText(this, "Email verification sent", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Log.e("UpdatePasswordError", "Failed to update email", it.exception)
+                        Toast.makeText(this, "Failed to update email: ${it.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
                     }
                 }
             }
@@ -59,6 +76,20 @@ class HomeActivity : AppCompatActivity() {
         if(binding.etPassword.length()<=6){
             binding.textInputLayoutPassword.error="Password should at least have 7 characters"
             binding.textInputLayoutPassword.errorIconDrawable = null
+            return false
+        }
+        return true
+    }
+
+    private fun checkEmailField(): Boolean{
+        val email = binding.etEmail.text.toString()
+
+        if(binding.etEmail.text.toString()==""){
+            binding.textInputLayoutEmail.error="This field is required"
+            return false
+        }
+        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+            binding.textInputLayoutEmail.error="Wrong email format"
             return false
         }
         return true
