@@ -9,6 +9,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.econome.databinding.ActivityHomeBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 class HomeActivity : AppCompatActivity() {
@@ -59,15 +60,16 @@ class HomeActivity : AppCompatActivity() {
                     if (managers.size >= 5) {
                         Toast.makeText(this, "You can only have up to 5 managers.", Toast.LENGTH_SHORT).show()
                     } else {
-                        createManager(currentUser.uid, name, totalMoney, managers)
+                        createManager(currentUser.uid, name, totalMoney)
                     }
                 }
             }
         }
     }
 
-    private fun createManager(userId: String, name: String, totalMoney: Double, currentManagers: List<String>) {
+    private fun createManager(userId: String, name: String, totalMoney: Double) {
         val newManagerDocRef = db.collection("managers").document()
+        val managerId = newManagerDocRef.id
         newManagerDocRef.set(
             hashMapOf(
                 "name" to name,
@@ -77,7 +79,7 @@ class HomeActivity : AppCompatActivity() {
             )
         ).addOnSuccessListener {
             val userDocRef = db.collection("users").document(userId)
-            userDocRef.update("managerNames", currentManagers + name)
+            userDocRef.update("managerNames", FieldValue.arrayUnion(name), "managerIds", FieldValue.arrayUnion(managerId))
                 .addOnSuccessListener {
                     Toast.makeText(this, "Manager '$name' created", Toast.LENGTH_SHORT).show()
                     loadManagers()
@@ -93,14 +95,14 @@ class HomeActivity : AppCompatActivity() {
             db.collection("users").document(currentUser.uid).get().addOnSuccessListener { document ->
                 if (document.exists()) {
                     val managerNames = document["managerNames"] as? List<String> ?: listOf()
+                    val managerIds = document["managerIds"] as? List<String> ?: listOf()
                     binding.layoutManagers.removeAllViews()
-                    managerNames.forEach { name ->
+                    managerNames.zip(managerIds).forEach { (name, id) ->
                         val button = Button(this).apply {
                             text = name
                             setOnClickListener {
-                                // Implement navigation with managerId
                                 val intent = Intent(this@HomeActivity, ExpenseActivity::class.java)
-                                intent.putExtra("managerId", "The actual ID linked to this name")
+                                intent.putExtra("managerId", id)
                                 startActivity(intent)
                             }
                         }
