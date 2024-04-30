@@ -19,7 +19,6 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -75,7 +74,8 @@ class HomeActivity : AppCompatActivity() {
                 "name" to name,
                 "totalMoney" to totalMoney,
                 "expenses" to listOf<Double>(),
-                "currentExpense" to 0.0
+                "currentExpense" to 0.0,
+                "creatorId" to userId  // Storing creator ID to identify ownership
             )
         ).addOnSuccessListener {
             val userDocRef = db.collection("users").document(userId)
@@ -101,7 +101,7 @@ class HomeActivity : AppCompatActivity() {
                         val button = Button(this).apply {
                             text = name
                             setOnClickListener {
-                                val intent = Intent(this@HomeActivity, ExpenseActivity::class.java)
+                                val intent = Intent(this@HomeActivity, ManagerDetailsActivity::class.java)
                                 intent.putExtra("managerId", id)
                                 startActivity(intent)
                             }
