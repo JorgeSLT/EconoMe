@@ -11,4 +11,6 @@
     <string name="confirm">Confirm</string>
     <string name="update">Update</string>
     <string name="delete_account">Delete account</string>
+    <string name="go_to_profile">Go to profile</string>
+    <string name="create_manager">Create manager</string>
 </resources>

@@ -8,91 +8,58 @@
     tools:context=".HomeActivity">
 
     <Button
-        android:id="@+id/btnSignout"
+        android:id="@+id/btnProfile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:text="@string/sign_out"
+        android:text="Go to Profile"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayoutPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="50dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnSignout"
-        app:passwordToggleEnabled="true"
-        app:startIconDrawable="@drawable/ic_password">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etPassword"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@color/transparent"
-            android:hint="@string/password"
-            android:inputType="textPassword"
-            android:paddingStart="50dp"
-            android:paddingEnd="40dp" />
-    </com.google.android.material.textfield.TextInputLayout>
-
     <Button
-        android:id="@+id/btnUpdatePassword"
+        android:id="@+id/btnCreateManager"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:text="@string/update"
+        android:text="Create Manager"
+        android:layout_marginTop="50dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutPassword" />
+        app:layout_constraintTop_toBottomOf="@+id/btnProfile" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayoutEmail"
-        android:layout_width="match_parent"
+    <EditText
+        android:id="@+id/etTotalMoney"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="50dp"
+        android:hint="Total Money"
+        android:inputType="numberDecimal"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnUpdatePassword"
-        app:startIconDrawable="@drawable/ic_email">
+        app:layout_constraintTop_toBottomOf="@id/btnCreateManager"
+        android:layout_marginTop="16dp"/>
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etEmail"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:background="@color/transparent"
-            android:hint="@string/email"
-            android:inputType="textEmailAddress"
-            android:paddingStart="50dp"
-            android:paddingEnd="40dp" />
-    </com.google.android.material.textfield.TextInputLayout>
+    <EditText
+        android:id="@+id/etExpense"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Expense"
+        android:inputType="numberDecimal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etTotalMoney"
+        android:layout_marginTop="16dp"/>
 
     <Button
-        android:id="@+id/btnUpdateEmail"
+        android:id="@+id/btnAddExpense"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:text="@string/update"
+        android:text="Add Expense"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutEmail" />
+        app:layout_constraintTop_toBottomOf="@id/etExpense"
+        android:layout_marginTop="16dp"/>
 
-    <Button
-        android:id="@+id/btnDelete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/delete_account"
-        android:layout_marginTop="40dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnUpdateEmail" />
 </androidx.constraintlayout.widget.ConstraintLayout>
