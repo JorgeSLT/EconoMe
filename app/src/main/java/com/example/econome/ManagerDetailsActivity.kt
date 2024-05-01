@@ -83,7 +83,7 @@ class ManagerDetailsActivity : AppCompatActivity() {
             showAddExpenseDialog(managerId)
         }
 
-        binding.btnDeleteManager.setOnClickListener {
+        binding.btnDelete.setOnClickListener {
             handleManagerDeletion(managerId)
         }
 

@@ -51,7 +51,7 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
-        binding.fabAddManager.setOnClickListener {
+        binding.btnCreateManager.setOnClickListener {
             showAddManagerDialog()
         }
 

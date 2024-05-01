@@ -2,18 +2,22 @@ package com.example.econome
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.util.Patterns
 import android.view.Menu
-import android.view.MenuItem
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import com.example.econome.databinding.ActivityProfileBinding
+import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+
 
 class ProfileActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -60,35 +64,11 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         binding.btnUpdatePassword.setOnClickListener {
-            val user = auth.currentUser
-            val password = binding.etPassword.text.toString()
-
-            if(checkPasswordField()){
-                user?.updatePassword(password)?.addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        Toast.makeText(this, "Password updated successfully", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Log.e("UpdatePasswordError", "Failed to update password", it.exception)
-                        Toast.makeText(this, "Failed to update password: ${it.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
+            showChangePasswordDialog()
         }
 
         binding.btnUpdateEmail.setOnClickListener {
-            val user = auth.currentUser
-            val email = binding.etEmail.text.toString()
-
-            if(checkEmailField()){
-                user?.verifyBeforeUpdateEmail(email)?.addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        Toast.makeText(this, "Email verification sent", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Log.e("UpdatePasswordError", "Failed to update email", it.exception)
-                        Toast.makeText(this, "Failed to update email: ${it.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
-                    }
-                }
-            }
+            showChangeEmailDialog()
         }
 
         binding.btnDelete.setOnClickListener {
@@ -113,33 +93,73 @@ class ProfileActivity : AppCompatActivity() {
         loadManagers()
     }
 
-    private fun checkPasswordField(): Boolean{
-        if(binding.etPassword.text.toString()==""){
-            binding.textInputLayoutPassword.error="This field is required"
-            binding.textInputLayoutPassword.errorIconDrawable = null
-            return false
+    private fun showChangePasswordDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Change Password")
+
+        val input = EditText(this)
+        input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+        input.hint = "Enter new password"
+        builder.setView(input)
+
+        builder.setPositiveButton("Update") { dialog, _ ->
+            val newPassword = input.text.toString()
+            if (newPassword.isNotEmpty() && newPassword.length > 6) {
+                updatePassword(newPassword)
+            } else {
+                Toast.makeText(this, "Password must be at least 7 characters", Toast.LENGTH_LONG).show()
+            }
         }
-        if(binding.etPassword.length()<=6){
-            binding.textInputLayoutPassword.error="Password should at least have 7 characters"
-            binding.textInputLayoutPassword.errorIconDrawable = null
-            return false
-        }
-        return true
+        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+
+        builder.show()
     }
 
-    private fun checkEmailField(): Boolean{
-        val email = binding.etEmail.text.toString()
-
-        if(binding.etEmail.text.toString()==""){
-            binding.textInputLayoutEmail.error="This field is required"
-            return false
-        }
-        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
-            binding.textInputLayoutEmail.error="Wrong email format"
-            return false
-        }
-        return true
+    private fun updatePassword(newPassword: String) {
+        FirebaseAuth.getInstance().currentUser?.updatePassword(newPassword)
+            ?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Password updated successfully", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Failed to update password", Toast.LENGTH_LONG).show()
+                }
+            }
     }
+
+
+    private fun showChangeEmailDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Change Email")
+
+        val input = EditText(this)
+        input.inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+        input.hint = "Enter new email"
+        builder.setView(input)
+
+        builder.setPositiveButton("Update") { dialog, _ ->
+            val newEmail = input.text.toString()
+            if (newEmail.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
+                updateEmail(newEmail)
+            } else {
+                Toast.makeText(this, "Invalid email address", Toast.LENGTH_LONG).show()
+            }
+        }
+        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+
+        builder.show()
+    }
+
+    private fun updateEmail(newEmail: String) {
+        FirebaseAuth.getInstance().currentUser?.verifyBeforeUpdateEmail(newEmail)
+            ?.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Email verification sent", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Failed to update email", Toast.LENGTH_LONG).show()
+                }
+            }
+    }
+
 
     private fun loadManagers() {
         val currentUser = auth.currentUser
