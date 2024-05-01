@@ -3,6 +3,7 @@ package com.example.econome
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Intent
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -72,7 +73,8 @@ class ManagerDetailsActivity : AppCompatActivity() {
             if (document.exists()) {
                 val managerName = document.getString("name") ?: "No name"
                 val totalMoney = document.getDouble("totalMoney") ?: 0.0
-                setTitle(managerName)  // Set the title of the activity to the manager's name
+                setTitle(managerName)
+                binding.tvManagerName.text = managerName
                 binding.tvTotalMoney.text = "Total Money: $totalMoney"
             }
         }
@@ -84,7 +86,7 @@ class ManagerDetailsActivity : AppCompatActivity() {
         }
 
         binding.btnDelete.setOnClickListener {
-            handleManagerDeletion(managerId)
+            showDeleteConfirmationDialog(managerId)
         }
 
         binding.btnGetId.setOnClickListener {
@@ -136,7 +138,17 @@ class ManagerDetailsActivity : AppCompatActivity() {
         }
     }
 
-
+    private fun showDeleteConfirmationDialog(managerId: String) {
+        AlertDialog.Builder(this).apply {
+            setTitle("Confirm Deletion")
+            setMessage("Are you sure you want to delete this manager?")
+            setPositiveButton("Delete") { dialog, which ->
+                handleManagerDeletion(managerId)
+            }
+            setNegativeButton("Cancel", null)
+            show()
+        }
+    }
 
     private fun handleManagerDeletion(managerId: String) {
         val currentUser = FirebaseAuth.getInstance().currentUser
@@ -179,8 +191,6 @@ class ManagerDetailsActivity : AppCompatActivity() {
     }
 
     private fun setupPieChart(managerId: String) {
-        val pieChart = binding.pieChart
-
         db.collection("managers").document(managerId).get().addOnSuccessListener { document ->
             if (document.exists()) {
                 val expenses = document.get("expenses") as List<Map<String, Any>>
@@ -189,27 +199,38 @@ class ManagerDetailsActivity : AppCompatActivity() {
 
                 val entries = ArrayList<PieEntry>()
                 expenses.forEach {
-                    entries.add(PieEntry((it["amount"] as Double).toFloat(), it["name"] as String))
+                    entries.add(PieEntry((it["amount"] as Double).toFloat(), "${it["name"]}: ${(it["amount"] as Double)}"))
                 }
                 if (totalMoney > currentExpense) {
                     entries.add(PieEntry((totalMoney - currentExpense).toFloat(), "Unspent"))
                 }
 
-                val dataSet = PieDataSet(entries, "Expenses")
-                dataSet.setColors(*ColorTemplate.JOYFUL_COLORS)
+                val dataSet = PieDataSet(entries, "")
+                dataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
                 dataSet.valueTextSize = 12f
+                dataSet.valueTextColor = android.graphics.Color.BLACK  // Color del texto de los valores
+                dataSet.setDrawValues(true)  // Asegúrate de que los valores se dibujen
 
                 val data = PieData(dataSet)
-                pieChart.data = data
-                pieChart.description.isEnabled = false
-                pieChart.centerText = "Total: $${totalMoney}"
-                pieChart.setUsePercentValues(true)
-                pieChart.invalidate()  // Refreshes the pie chart
+                data.setValueTextSize(12f)
+                data.setValueTextColor(android.graphics.Color.BLACK)  // Configura el color del texto de los valores a negro
+
+                binding.pieChart.data = data
+                binding.pieChart.legend.isEnabled = false  // Deshabilita la leyenda completamente
+                binding.pieChart.description.isEnabled = false
+                binding.pieChart.setEntryLabelTextSize(12f)
+                binding.pieChart.setEntryLabelColor(android.graphics.Color.BLACK)  // Configura el color de las etiquetas de entrada
+                binding.pieChart.setEntryLabelTypeface(Typeface.DEFAULT_BOLD)  // Establece las etiquetas en negrita
+                binding.pieChart.centerText = "Total: $${totalMoney}"
+                binding.pieChart.setUsePercentValues(true)
+                binding.pieChart.invalidate()  // Refresca el gráfico para aplicar cambios
             }
         }.addOnFailureListener {
-            // Handle errors
+            Toast.makeText(this, "Error loading chart data", Toast.LENGTH_SHORT).show()
         }
     }
+
+
 
     private fun showManagerIdDialog(managerId: String) {
         val dialogBuilder = AlertDialog.Builder(this)
@@ -312,6 +333,5 @@ class ManagerDetailsActivity : AppCompatActivity() {
             tvUserName.text = "No User Logged In"
         }
     }
-
 
 }
