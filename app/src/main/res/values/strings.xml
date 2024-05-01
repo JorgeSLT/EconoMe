@@ -13,4 +13,6 @@
     <string name="delete_account">Delete account</string>
     <string name="go_to_profile">Go to profile</string>
     <string name="create_manager">Create manager</string>
+    <string name="navigation_drawer_open">Open</string>
+    <string name="navigation_drawer_close">Close</string>
 </resources>
