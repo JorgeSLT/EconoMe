@@ -62,6 +62,22 @@
             android:text="Add Expense"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/btnDelExpense"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="50dp" />
+
+        <Button
+            android:id="@+id/btnDelExpense"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button"
+            android:textColor="@color/white"
+            android:drawableStart="@drawable/ic_minus"
+            android:text="Delete Expense"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="20dp"
             app:layout_constraintBottom_toTopOf="@+id/btnGetId"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

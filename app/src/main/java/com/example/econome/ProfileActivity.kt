@@ -72,18 +72,7 @@ class ProfileActivity : AppCompatActivity() {
         }
 
         binding.btnDelete.setOnClickListener {
-            val user = auth.currentUser
-            user?.delete()?.addOnCompleteListener {
-                if (it.isSuccessful) {
-                    Toast.makeText(this, "Account deleted successfully", Toast.LENGTH_SHORT).show()
-                    val intent = Intent(this, SignInActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                } else {
-                    Log.e("DeleteAccountError", "Failed to delete account", it.exception)
-                    Toast.makeText(this, "Failed to delete account: ${it.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
-                }
-            }
+            deleteUserAndData()
         }
 
         binding.imgUser.setOnClickListener {
@@ -322,6 +311,48 @@ class ProfileActivity : AppCompatActivity() {
             Toast.makeText(this, "No User Logged In", Toast.LENGTH_SHORT).show()
         }
     }
+
+    private fun deleteUserAndData() {
+        val user = FirebaseAuth.getInstance().currentUser ?: return
+        val userId = user.uid
+
+        // Referencia al documento del usuario en Firestore
+        val userDocRef = db.collection("users").document(userId)
+
+        // Obtener todos los managers creados por el usuario
+        db.collection("managers").whereEqualTo("creatorId", userId).get()
+            .addOnSuccessListener { documents ->
+                // Crear un lote para eliminar todos los documentos
+                val batch = db.batch()
+                documents.forEach { documentSnapshot ->
+                    batch.delete(documentSnapshot.reference)  // Eliminar cada manager
+                }
+                batch.delete(userDocRef)  // Eliminar el documento del usuario
+
+                // Commit del lote
+                batch.commit().addOnSuccessListener {
+                    // Ahora eliminar el usuario de Firebase Auth
+                    user.delete().addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Toast.makeText(this, "Account and all related data deleted successfully", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this, SignInActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        } else {
+                            Log.e("AuthDeletionError", "Failed to delete user from auth", task.exception)
+                            Toast.makeText(this, "Failed to delete account: ${task.exception?.localizedMessage}", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }.addOnFailureListener { e ->
+                    Toast.makeText(this, "Failed to delete user data: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirestoreReadError", "Failed to read managers for deletion", e)
+                Toast.makeText(this, "Failed to retrieve managers for deletion: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
 
 
 }

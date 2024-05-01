@@ -317,13 +317,12 @@ class ManagerDetailsActivity : AppCompatActivity() {
                 if (documentSnapshot.exists()) {
                     val name = documentSnapshot.getString("name") ?: "No Name Set"
                     val imageUrl = documentSnapshot.getString("profileImageUrl") ?: ""
+
                     tvUserName.text = name
 
                     // Cargar imagen con Glide
                     Glide.with(this)
                         .load(imageUrl)
-                        .placeholder(R.mipmap.ic_launcher_round) // Imagen de carga predeterminada
-                        .error(R.mipmap.ic_launcher_round) // Imagen de error
                         .circleCrop() // Si quieres la imagen en forma de círculo
                         .into(imageView)
                 } else {
