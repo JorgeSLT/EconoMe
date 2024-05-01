@@ -19,28 +19,30 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 
 class HomeActivity : AppCompatActivity() {
+    // Declaración de las instancias para autenticacion y bbdd
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: ActivityHomeBinding
     private lateinit var db: FirebaseFirestore
 
+    // Metodo onCreate que se llama al crear la actividad
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSupportActionBar(binding.toolbar)  // Aquí usamos directamente toolbar si appBarMain no es un ID en tu layout
+        setSupportActionBar(binding.toolbar)
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
         val toggle = ActionBarDrawerToggle(
-            this, binding.drawerLayout, binding.toolbar,  // Asegúrate de que estos IDs coincidan
+            this, binding.drawerLayout, binding.toolbar,
             R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        // Ahora configura los listeners para tus botones
+        // Listener para la vista de navegacion del drawer menu de la app
         binding.navView.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.nav_profile -> {
@@ -48,22 +50,25 @@ class HomeActivity : AppCompatActivity() {
                     binding.drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
-                // Aquí puedes manejar más IDs si los managers dinámicos también necesitan ser manejados
                 else -> false
             }
         }
 
+        // Listener para el boton de crear un nuevo gestor
         binding.btnCreateManager.setOnClickListener {
             showAddManagerDialog()
         }
 
+        // Listener para el boton de unirse a un gestor
         binding.btnJoinManager.setOnClickListener {
             showJoinManagerDialog()
         }
 
+        // Carga de los gestores del usuario
         loadManagers()
     }
 
+    // Enseña un dialogo para añadir un nuevo gestor
     private fun showAddManagerDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_manager, null)
         val editTextName = dialogView.findViewById<EditText>(R.id.etManagerName)
@@ -85,6 +90,7 @@ class HomeActivity : AppCompatActivity() {
             .show()
     }
 
+    // Enseña un dialogo para unirse a un gestor
     private fun showJoinManagerDialog() {
         val editTextId = EditText(this)
         editTextId.hint = "Enter Manager ID"
@@ -100,6 +106,7 @@ class HomeActivity : AppCompatActivity() {
             .show()
     }
 
+    // Logica para unirse a un gestor
     private fun joinManager(managerId: String) {
         val currentUser = auth.currentUser
         if (currentUser != null) {
@@ -117,7 +124,7 @@ class HomeActivity : AppCompatActivity() {
                             userDocRef.update("managerIds", FieldValue.arrayUnion(managerId), "managerNames", FieldValue.arrayUnion(managerName))
                                 .addOnSuccessListener {
                                     Toast.makeText(this, "Successfully joined the manager.", Toast.LENGTH_SHORT).show()
-                                    loadManagers()  // Refresh the list of managers
+                                    loadManagers()
                                 }
                         } else {
                             Toast.makeText(this, "Manager ID not found.", Toast.LENGTH_SHORT).show()
@@ -128,6 +135,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    // Logica para comprobar si se puede crear un nuevo manager
     private fun checkAndCreateManager(name: String, totalMoney: Double) {
         val currentUser = auth.currentUser
         if (currentUser != null) {
@@ -145,6 +153,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    // Logica para crear un nuevo manager
     private fun createManager(userId: String, name: String, totalMoney: Double) {
         val newManagerDocRef = db.collection("managers").document()
         val managerId = newManagerDocRef.id
@@ -168,6 +177,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    // Recarga los gestores del usuario
     private fun loadManagers() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
@@ -184,13 +194,15 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    // Recarga el drawer menu para que aparezcan los gestores en el drawer menu
     private fun updateNavigationDrawer(managerNames: List<String>, managerIds: List<String>) {
         val menu = binding.navView.menu
-        menu.clear()  // Limpiar el menú para evitar duplicaciones
+        // Limpiar el menú para evitar duplicaciones
+        menu.clear()
         setupDrawerHeader()
 
         // Añadir ítems de "Home" y "Profile"
-        menu.add(Menu.NONE, R.id.nav_home, Menu.NONE, "Home").setIcon(R.drawable.ic_home).apply {
+        menu.add(Menu.NONE, R.id.nav_home, Menu.NONE, R.string.home).setIcon(R.drawable.ic_home).apply {
             setOnMenuItemClickListener {
                 val intent = Intent(this@HomeActivity, HomeActivity::class.java)
                 startActivity(intent)
@@ -198,7 +210,7 @@ class HomeActivity : AppCompatActivity() {
                 true
             }
         }
-        menu.add(Menu.NONE, R.id.nav_profile, Menu.NONE, "Profile").setIcon(R.drawable.ic_profile).apply {
+        menu.add(Menu.NONE, R.id.nav_profile, Menu.NONE, R.string.profile).setIcon(R.drawable.ic_profile).apply {
             setOnMenuItemClickListener {
                 val intent = Intent(this@HomeActivity, ProfileActivity::class.java)
                 startActivity(intent)
@@ -207,10 +219,10 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
-        // Añadir un nuevo submenú para los managers
+        // Añadir un nuevo submenu para los managers
         val managerGroup = menu.addSubMenu("Your Managers")
 
-        // Añadir cada manager al submenú
+        // Añadir cada manager al submenu
         managerNames.zip(managerIds).forEachIndexed { index, (name, id) ->
             managerGroup.add(R.id.group_managers, Menu.NONE, index, name).apply {
                 setOnMenuItemClickListener {
@@ -225,6 +237,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    // Prepara el header del drawer, donde aparece la foto de perfil y el nombre del usuario
     private fun setupDrawerHeader() {
         val headerView = binding.navView.getHeaderView(0)
         val tvUserName = headerView.findViewById<TextView>(R.id.tvUserName)
@@ -244,7 +257,7 @@ class HomeActivity : AppCompatActivity() {
                         .load(imageUrl)
                         .placeholder(R.mipmap.ic_launcher_round) // Imagen de carga predeterminada
                         .error(R.mipmap.ic_launcher_round) // Imagen de error
-                        .circleCrop() // Si quieres la imagen en forma de círculo
+                        .circleCrop()
                         .into(imageView)
                 } else {
                     tvUserName.text = "User not found"
@@ -258,5 +271,4 @@ class HomeActivity : AppCompatActivity() {
             tvUserName.text = "No User Logged In"
         }
     }
-
 }

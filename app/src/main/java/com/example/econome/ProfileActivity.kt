@@ -25,6 +25,7 @@ import com.google.firebase.storage.FirebaseStorage
 import java.util.Locale
 
 class ProfileActivity : AppCompatActivity() {
+    // Declaración de las instancias para autenticacion y bbdd
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: ActivityProfileBinding
     private lateinit var db: FirebaseFirestore
@@ -33,6 +34,7 @@ class ProfileActivity : AppCompatActivity() {
         private const val IMAGE_PICK_CODE = 999
     }
 
+    // Metodo onCreate que se llama al crear la actividad
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
@@ -46,6 +48,7 @@ class ProfileActivity : AppCompatActivity() {
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
+        // Listener para la vista de navegacion del drawer menu de la app
         binding.navView.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.nav_profile -> {
@@ -57,6 +60,7 @@ class ProfileActivity : AppCompatActivity() {
             }
         }
 
+        // Listeners para el boton de cerrar sesion
         binding.btnSignout.setOnClickListener {
             auth.signOut()
             val intent = Intent(this, SignInActivity::class.java)
@@ -64,22 +68,27 @@ class ProfileActivity : AppCompatActivity() {
             finish()
         }
 
+        // Listeners para el boton de actualizar la contraseña
         binding.btnUpdatePassword.setOnClickListener {
             showChangePasswordDialog()
         }
 
+        // Listeners para el boton de actualizar el email
         binding.btnUpdateEmail.setOnClickListener {
             showChangeEmailDialog()
         }
 
+        // Listeners para el boton de borrar la cuenta
         binding.btnDelete.setOnClickListener {
             deleteUserAndData()
         }
 
+        // Listeners para el boton de actualizar la imagen
         binding.imgUser.setOnClickListener {
             openGalleryForImage()
         }
 
+        // Listeners para el boton de actualizar el idioma
         binding.btnChangeLanguage.setOnClickListener {
             showLanguageDialog()
         }
@@ -89,6 +98,8 @@ class ProfileActivity : AppCompatActivity() {
         loadProfile()
     }
 
+    // Logica para cambiar la imagen del usuario
+    // Abrir la galeria, subir la imagen a la bbdd y actualizarla en el perfil
     private fun openGalleryForImage() {
         val intent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(intent, IMAGE_PICK_CODE)
@@ -137,6 +148,7 @@ class ProfileActivity : AppCompatActivity() {
         setupDrawerHeader()
     }
 
+    // Enseña un dialogo para cambiar la contraseña
     private fun showChangePasswordDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Change Password")
@@ -157,6 +169,7 @@ class ProfileActivity : AppCompatActivity() {
         builder.show()
     }
 
+    // Actualizar la contraseña
     private fun updatePassword(newPassword: String) {
         FirebaseAuth.getInstance().currentUser?.updatePassword(newPassword)?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -167,6 +180,7 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+    // Enseña un dialogo para cambiar el email
     private fun showChangeEmailDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Change Email")
@@ -187,6 +201,7 @@ class ProfileActivity : AppCompatActivity() {
         builder.show()
     }
 
+    // Actualizar el email
     private fun updateEmail(newEmail: String) {
         FirebaseAuth.getInstance().currentUser?.verifyBeforeUpdateEmail(newEmail)?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -197,6 +212,7 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+    // Carga los gestores del usuario para el drawer menu
     private fun loadManagers() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
@@ -213,13 +229,15 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+    // Recarga el drawer menu para que aparezcan los gestores en el drawer menu
     private fun updateNavigationDrawer(managerNames: List<String>, managerIds: List<String>) {
         val menu = binding.navView.menu
-        menu.clear()  // Limpiar el menú para evitar duplicaciones
+        // Limpiar el menú para evitar duplicaciones
+        menu.clear()
         setupDrawerHeader()
 
         // Añadir ítems de "Home" y "Profile"
-        menu.add(Menu.NONE, R.id.nav_home, Menu.NONE, "Home").setIcon(R.drawable.ic_home).apply {
+        menu.add(Menu.NONE, R.id.nav_home, Menu.NONE, R.string.home).setIcon(R.drawable.ic_home).apply {
             setOnMenuItemClickListener {
                 val intent = Intent(this@ProfileActivity, HomeActivity::class.java)
                 startActivity(intent)
@@ -227,7 +245,7 @@ class ProfileActivity : AppCompatActivity() {
                 true
             }
         }
-        menu.add(Menu.NONE, R.id.nav_profile, Menu.NONE, "Profile").setIcon(R.drawable.ic_profile).apply {
+        menu.add(Menu.NONE, R.id.nav_profile, Menu.NONE, R.string.profile).setIcon(R.drawable.ic_profile).apply {
             setOnMenuItemClickListener {
                 val intent = Intent(this@ProfileActivity, ProfileActivity::class.java)
                 startActivity(intent)
@@ -236,10 +254,10 @@ class ProfileActivity : AppCompatActivity() {
             }
         }
 
-        // Añadir un nuevo submenú para los managers
+        // Añadir un nuevo submenu para los managers
         val managerGroup = menu.addSubMenu("Your Managers")
 
-        // Añadir cada manager al submenú
+        // Añadir cada manager al submenu
         managerNames.zip(managerIds).forEachIndexed { index, (name, id) ->
             managerGroup.add(R.id.group_managers, Menu.NONE, index, name).apply {
                 setOnMenuItemClickListener {
@@ -254,6 +272,7 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+    // Prepara el header del drawer, donde aparece la foto de perfil y el nombre del usuario
     private fun setupDrawerHeader() {
         val headerView = binding.navView.getHeaderView(0)
         val tvUserName = headerView.findViewById<TextView>(R.id.tvUserName)
@@ -272,7 +291,7 @@ class ProfileActivity : AppCompatActivity() {
                     // Cargar imagen con Glide
                     Glide.with(this)
                         .load(imageUrl)
-                        .circleCrop() // Si quieres la imagen en forma de círculo
+                        .circleCrop()
                         .into(imageView)
                 } else {
                     tvUserName.text = "User not found"
@@ -287,6 +306,7 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+    // Recarga el perfil, para que la foto y el nombre se correspondan con los de la bbdd
     private fun loadProfile() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
@@ -304,7 +324,7 @@ class ProfileActivity : AppCompatActivity() {
                         .load(imageUrl)
                         .placeholder(R.mipmap.ic_launcher_round) // Imagen de carga predeterminada
                         .error(R.mipmap.ic_launcher_round) // Imagen de error
-                        .circleCrop() // Si quieres la imagen en forma de círculo
+                        .circleCrop()
                         .into(binding.imgUser)
 
                 } else {
@@ -318,6 +338,7 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+    // Logica para que una vez borrada la cuenta se borren todos los datos relacionada con la misma
     private fun deleteUserAndData() {
         val user = FirebaseAuth.getInstance().currentUser ?: return
         val userId = user.uid
@@ -337,7 +358,7 @@ class ProfileActivity : AppCompatActivity() {
 
                 // Commit del lote
                 batch.commit().addOnSuccessListener {
-                    // Ahora eliminar el usuario de Firebase Auth
+                    // Eliminar el usuario de Firebase Auth
                     user.delete().addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             Toast.makeText(this, "Account and all related data deleted successfully", Toast.LENGTH_SHORT).show()
@@ -359,6 +380,7 @@ class ProfileActivity : AppCompatActivity() {
             }
     }
 
+    // Enseña un dialog para cambiar el idioma
     private fun showLanguageDialog() {
         val languages = arrayOf("English", "Español")
         AlertDialog.Builder(this)
@@ -368,10 +390,11 @@ class ProfileActivity : AppCompatActivity() {
                     0 -> setLocale("en") // English
                     1 -> setLocale("es") // Spanish
                 }
-                recreate() // Recrear la actividad para reflejar el cambio de idioma
+                recreate()
             }.show()
     }
 
+    // Cambia el idioma de preferencia
     private fun setLocale(languageCode: String) {
         val locale = Locale(languageCode)
         Locale.setDefault(locale)
@@ -393,6 +416,4 @@ class ProfileActivity : AppCompatActivity() {
             setLocale(language)
         }
     }
-
-
 }

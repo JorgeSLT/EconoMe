@@ -30,4 +30,6 @@
     <string name="total_money">Presupuesto</string>
     <string name="home">Inicio</string>
     <string name="profile">Perfil</string>
+    <string name="id_copied">ID copiado al portapapeles</string>
+    <string name="copy">Copiar</string>
 </resources>

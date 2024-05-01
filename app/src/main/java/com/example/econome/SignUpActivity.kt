@@ -22,7 +22,7 @@ import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayOutputStream
 
 class SignUpActivity : AppCompatActivity() {
-
+    // Declaración de las instancias para autenticacion y bbdd
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: ActivitySignUpBinding
     private lateinit var db: FirebaseFirestore
@@ -36,6 +36,7 @@ class SignUpActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
+        // Listener para el boton de regitrarse
         binding.btnSignup.setOnClickListener {
             val email = binding.etEmail.text.toString()
             val password = binding.etPassword.text.toString()
@@ -93,6 +94,7 @@ class SignUpActivity : AppCompatActivity() {
 
     }
 
+    // Comprobar que todos los campos estan rellenados correctamente
     private fun checkAllField(): Boolean {
         val email = binding.etEmail.text.toString()
 
@@ -126,6 +128,7 @@ class SignUpActivity : AppCompatActivity() {
         return true
     }
 
+    // Transforma una imagen a bitmap
     fun getBitmapFromDrawableResource(context: Context, drawableId: Int): Bitmap {
         val drawable = ContextCompat.getDrawable(context, drawableId)!!
         val canvas = Canvas()

@@ -10,6 +10,5 @@
             android:title="@string/profile" />
     </group>
     <group android:id="@+id/group_managers">
-        <!-- Los ítems de este grupo se añadirán dinámicamente -->
     </group>
 </menu>

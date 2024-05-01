@@ -14,6 +14,7 @@ import com.example.econome.databinding.ActivitySignUpBinding
 import com.google.firebase.auth.FirebaseAuth
 
 class SignInActivity : AppCompatActivity() {
+    // Declaración de las instancias para autenticacion
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: ActivitySignInBinding
 
@@ -27,6 +28,7 @@ class SignInActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
+        // Listener para el boton de inicio de sesion
         binding.btnSignin.setOnClickListener {
             val email = binding.etEmail.text.toString()
             val password = binding.etPassword.text.toString()
@@ -34,7 +36,7 @@ class SignInActivity : AppCompatActivity() {
             if(checkAllField()){
                 auth.signInWithEmailAndPassword(email, password).addOnCompleteListener {
                     if (it.isSuccessful) {
-                        // Usuario logeado con éxito
+                        // Usuario logeado con exito
                         Toast.makeText(this, "Successfully sign in", Toast.LENGTH_SHORT).show()
 
 
@@ -50,12 +52,14 @@ class SignInActivity : AppCompatActivity() {
             }
         }
 
+        // Listener para el boton que te lleva a la pagina de registro
         binding.tvCreateAccount.setOnClickListener {
             val intent = Intent(this, SignUpActivity::class.java)
             startActivity(intent)
             finish()
         }
 
+        // Listener para el boton para recuperar la contraseña
         binding.tvForgotPassword.setOnClickListener {
             val intent = Intent(this, ForgotPasswordActivity::class.java)
             startActivity(intent)
@@ -63,6 +67,7 @@ class SignInActivity : AppCompatActivity() {
         }
     }
 
+    // Comprueba si los campos estan bien rellenados
     private fun checkAllField(): Boolean{
         val email = binding.etEmail.text.toString()
 

@@ -28,10 +28,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 
 class ManagerDetailsActivity : AppCompatActivity() {
+    // Declaración de las instancias para autenticacion y bbdd
     private lateinit var binding: ActivityManagerDetailsBinding
     private lateinit var db: FirebaseFirestore
     private lateinit var auth: FirebaseAuth
 
+    // Metodo onCreate que se llama al crear la actividad
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityManagerDetailsBinding.inflate(layoutInflater)
@@ -44,13 +46,13 @@ class ManagerDetailsActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
 
         val toggle = ActionBarDrawerToggle(
-            this, binding.drawerLayout, binding.toolbar,  // Asegúrate de que estos IDs coincidan
+            this, binding.drawerLayout, binding.toolbar,
             R.string.navigation_drawer_open, R.string.navigation_drawer_close
         )
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        // Ahora configura los listeners para tus botones
+        // Listener para la vista de navegacion del drawer menu de la app
         binding.navView.setNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.nav_profile -> {
@@ -58,19 +60,21 @@ class ManagerDetailsActivity : AppCompatActivity() {
                     binding.drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
-                // Aquí puedes manejar más IDs si los managers dinámicos también necesitan ser manejados
                 else -> false
             }
         }
 
+        // Obtencion del ID del gestor que se esta mostrando en pantalla
         val managerId = intent.getStringExtra("managerId") ?: ""
 
+        // Llamada a las diferentes funciones para ofrecer una vista correcta
         setupManagerDetails(managerId)
         setupButtons(managerId)
         setupPieChart(managerId)
         loadManagers()
     }
 
+    // Se cargan desde la bbdd los datos (nombre y presupuesto) del gestor
     private fun setupManagerDetails(managerId: String) {
         db.collection("managers").document(managerId).get().addOnSuccessListener { document ->
             if (document.exists()) {
@@ -83,6 +87,7 @@ class ManagerDetailsActivity : AppCompatActivity() {
         }
     }
 
+    // Preparacion de los diferentes listeners de los botones
     private fun setupButtons(managerId: String) {
         binding.btnAddExpense.setOnClickListener {
             showAddExpenseDialog(managerId)
@@ -101,6 +106,7 @@ class ManagerDetailsActivity : AppCompatActivity() {
         }
     }
 
+    // Enseña un dialogo para añadir un nuevo gasto al gestor
     private fun showAddExpenseDialog(managerId: String) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_expense, null)
         val editTextExpenseName = dialogView.findViewById<EditText>(R.id.etExpenseName)
@@ -122,6 +128,7 @@ class ManagerDetailsActivity : AppCompatActivity() {
             .show()
     }
 
+    // Logica para añadir un gasto al documento del gestor en la bbdd
     private fun addExpense(managerId: String, expenseName: String, expenseAmount: Double) {
         val managerDocRef = db.collection("managers").document(managerId)
         val expense = hashMapOf("name" to expenseName, "amount" to expenseAmount)
@@ -145,6 +152,7 @@ class ManagerDetailsActivity : AppCompatActivity() {
         }
     }
 
+    // Enseña un dialogo para borrar un gestor
     private fun showDeleteConfirmationDialog(managerId: String) {
         AlertDialog.Builder(this).apply {
             setTitle("Confirm Deletion")
@@ -157,6 +165,7 @@ class ManagerDetailsActivity : AppCompatActivity() {
         }
     }
 
+    // Logica para borrar un gestor
     private fun handleManagerDeletion(managerId: String) {
         val currentUser = FirebaseAuth.getInstance().currentUser
         if (currentUser != null) {
@@ -167,12 +176,12 @@ class ManagerDetailsActivity : AppCompatActivity() {
                     val managerName = managerDoc.getString("name") ?: ""
                     val creatorId = managerDoc.getString("creatorId") ?: ""
 
-                    // Remover el manager de los arrays del usuario
+                    // Elimina el gestor de los arrays del usuario
                     userDocRef.update(
                         "managerIds", FieldValue.arrayRemove(managerId),
                         "managerNames", FieldValue.arrayRemove(managerName)
                     ).addOnSuccessListener {
-                        // Si el usuario actual es el creador, también eliminamos el documento del manager
+                        // Si el usuario actual es el creador, también eliminamos el documento del gestor
                         if (creatorId == currentUser.uid) {
                             managerDocRef.delete().addOnSuccessListener {
                                 Toast.makeText(this, "Manager deleted completely", Toast.LENGTH_SHORT).show()
@@ -180,7 +189,7 @@ class ManagerDetailsActivity : AppCompatActivity() {
                         } else {
                             Toast.makeText(this, "Manager removed from your list", Toast.LENGTH_SHORT).show()
                         }
-                        finish()  // Cierra la actividad y regresa a la anterior
+                        finish()
                     }.addOnFailureListener { e ->
                         Toast.makeText(this, "Failed to remove manager: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
                     }
@@ -191,12 +200,13 @@ class ManagerDetailsActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
-            finish()  // Close this activity and return to the previous one
+            finish()
             return true
         }
         return super.onOptionsItemSelected(item)
     }
 
+    // Preparacion del grafico de pizza
     private fun setupPieChart(managerId: String) {
         db.collection("managers").document(managerId).get().addOnSuccessListener { document ->
             if (document.exists()) {
@@ -216,7 +226,7 @@ class ManagerDetailsActivity : AppCompatActivity() {
                 dataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
                 dataSet.valueTextSize = 12f
                 dataSet.valueTextColor = android.graphics.Color.BLACK  // Color del texto de los valores
-                dataSet.setDrawValues(true)  // Asegúrate de que los valores se dibujen
+                dataSet.setDrawValues(true)  // Asegura que los valores se dibujen
 
                 val data = PieData(dataSet)
                 data.setValueTextSize(12f)
@@ -230,29 +240,29 @@ class ManagerDetailsActivity : AppCompatActivity() {
                 binding.pieChart.setEntryLabelTypeface(Typeface.DEFAULT_BOLD)  // Establece las etiquetas en negrita
                 binding.pieChart.centerText = "Total: $${totalMoney}"
                 binding.pieChart.setUsePercentValues(true)
-                binding.pieChart.invalidate()  // Refresca el gráfico para aplicar cambios
+                binding.pieChart.invalidate()  // Refresca el grafico para aplicar cambios
             }
         }.addOnFailureListener {
             Toast.makeText(this, "Error loading chart data", Toast.LENGTH_SHORT).show()
         }
     }
 
-
-
+    // Enseña un dialogo para obtener el ID del gestor
     private fun showManagerIdDialog(managerId: String) {
         val dialogBuilder = AlertDialog.Builder(this)
         dialogBuilder.setTitle("Manager ID")
         dialogBuilder.setMessage("ID: $managerId")
-        dialogBuilder.setPositiveButton("Copy") { dialog, which ->
+        dialogBuilder.setPositiveButton(R.string.copy) { dialog, which ->
             val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("Manager ID", managerId)
             clipboard.setPrimaryClip(clip)
-            Toast.makeText(this, "ID copied to clipboard", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, R.string.id_copied, Toast.LENGTH_SHORT).show()
         }
         dialogBuilder.setNegativeButton("Close", null)
         dialogBuilder.show()
     }
 
+    // Cargar los gestores para el drawer menu
     private fun loadManagers() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
@@ -269,13 +279,15 @@ class ManagerDetailsActivity : AppCompatActivity() {
         }
     }
 
+    // Recarga el drawer menu para que aparezcan los gestores en el drawer menu
     private fun updateNavigationDrawer(managerNames: List<String>, managerIds: List<String>) {
         val menu = binding.navView.menu
-        menu.clear()  // Limpiar el menú para evitar duplicaciones
+        // Limpiar el menú para evitar duplicaciones
+        menu.clear()
         setupDrawerHeader()
 
         // Añadir ítems de "Home" y "Profile"
-        menu.add(Menu.NONE, R.id.nav_home, Menu.NONE, "Home").setIcon(R.drawable.ic_home).apply {
+        menu.add(Menu.NONE, R.id.nav_home, Menu.NONE, R.string.home).setIcon(R.drawable.ic_home).apply {
             setOnMenuItemClickListener {
                 val intent = Intent(this@ManagerDetailsActivity, HomeActivity::class.java)
                 startActivity(intent)
@@ -283,7 +295,7 @@ class ManagerDetailsActivity : AppCompatActivity() {
                 true
             }
         }
-        menu.add(Menu.NONE, R.id.nav_profile, Menu.NONE, "Profile").setIcon(R.drawable.ic_profile).apply {
+        menu.add(Menu.NONE, R.id.nav_profile, Menu.NONE, R.string.profile).setIcon(R.drawable.ic_profile).apply {
             setOnMenuItemClickListener {
                 val intent = Intent(this@ManagerDetailsActivity, ProfileActivity::class.java)
                 startActivity(intent)
@@ -292,10 +304,10 @@ class ManagerDetailsActivity : AppCompatActivity() {
             }
         }
 
-        // Añadir un nuevo submenú para los managers
+        // Añadir un nuevo submenu para los gestores
         val managerGroup = menu.addSubMenu("Your Managers")
 
-        // Añadir cada manager al submenú
+        // Añadir cada gestor al submenu
         managerNames.zip(managerIds).forEachIndexed { index, (name, id) ->
             managerGroup.add(R.id.group_managers, Menu.NONE, index, name).apply {
                 setOnMenuItemClickListener {
@@ -310,6 +322,7 @@ class ManagerDetailsActivity : AppCompatActivity() {
         }
     }
 
+    // Prepara el header del drawer, donde aparece la foto de perfil y el nombre del usuario
     private fun setupDrawerHeader() {
         val headerView = binding.navView.getHeaderView(0)
         val tvUserName = headerView.findViewById<TextView>(R.id.tvUserName)
@@ -328,7 +341,7 @@ class ManagerDetailsActivity : AppCompatActivity() {
                     // Cargar imagen con Glide
                     Glide.with(this)
                         .load(imageUrl)
-                        .circleCrop() // Si quieres la imagen en forma de círculo
+                        .circleCrop()
                         .into(imageView)
                 } else {
                     tvUserName.text = "User not found"
@@ -343,6 +356,7 @@ class ManagerDetailsActivity : AppCompatActivity() {
         }
     }
 
+    // Enseña un dialogo para borrar un gasto del gestor
     private fun showExpenseDeletionDialog(managerId: String) {
         val managerDocRef = db.collection("managers").document(managerId)
         managerDocRef.get().addOnSuccessListener { document ->
@@ -368,6 +382,7 @@ class ManagerDetailsActivity : AppCompatActivity() {
         }
     }
 
+    // Logica para eliminar un gasto de un gestor
     private fun deleteExpense(managerId: String, expense: Map<String, Any>) {
         val managerDocRef = db.collection("managers").document(managerId)
         db.runTransaction { transaction ->
@@ -375,7 +390,8 @@ class ManagerDetailsActivity : AppCompatActivity() {
             transaction.update(managerDocRef, "currentExpense", FieldValue.increment(-(expense["amount"] as Double)))
         }.addOnSuccessListener {
             Toast.makeText(this, "Expense deleted successfully", Toast.LENGTH_SHORT).show()
-            setupPieChart(managerId)  // Refresh the chart
+            // Recargar el grafico
+            setupPieChart(managerId)
         }.addOnFailureListener { e ->
             Toast.makeText(this, "Failed to delete expense: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
         }
