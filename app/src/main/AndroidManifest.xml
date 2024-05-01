@@ -15,7 +15,6 @@
         <activity
             android:name=".ManagerDetailsActivity"
             android:parentActivityName=".HomeActivity">
-            <!-- Meta-data tag for supporting API level 16 and below -->
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".HomeActivity" />
