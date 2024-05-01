@@ -39,7 +39,7 @@
             app:layout_constraintTop_toBottomOf="@id/tvManagerName"
             app:layout_constraintStart_toStartOf="@id/toolbar"
             android:layout_marginStart="16dp"
-            android:text="Total Money: $0.0" />
+            android:text="Total: $0.0" />
 
         <com.github.mikephil.charting.charts.PieChart
             android:id="@+id/pieChart"
@@ -59,7 +59,7 @@
             android:background="@drawable/rounded_button"
             android:textColor="@color/white"
             android:drawableStart="@drawable/ic_add"
-            android:text="Add Expense"
+            android:text="@string/add_expense"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="20dp"
             app:layout_constraintBottom_toTopOf="@+id/btnDelExpense"
@@ -75,7 +75,7 @@
             android:background="@drawable/rounded_button"
             android:textColor="@color/white"
             android:drawableStart="@drawable/ic_minus"
-            android:text="Delete Expense"
+            android:text="@string/delete_expense"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="20dp"
             app:layout_constraintBottom_toTopOf="@+id/btnGetId"
@@ -92,7 +92,7 @@
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:text="Get ID"
+            android:text="@string/get_id"
             android:layout_marginBottom="20dp"
             android:padding="18dp"
             app:layout_constraintStart_toStartOf="@id/btnAddExpense"

@@ -10,12 +10,12 @@
         android:id="@+id/etExpenseName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Expense name" />
+        android:hint="@string/expense_name" />
 
     <EditText
         android:id="@+id/etExpenseAmount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="numberDecimal"
-        android:hint="Amount" />
+        android:hint="@string/amount" />
 </LinearLayout>

@@ -47,7 +47,7 @@
             android:textColor="@color/white"
             android:drawableStart="@drawable/ic_email"
             android:textSize="20sp"
-            android:text="Update email"
+            android:text="@string/update_email"
             android:layout_marginTop="16dp"
             android:layout_marginStart="50dp"
             android:layout_marginEnd="50dp"
@@ -63,7 +63,7 @@
             android:textColor="@color/white"
             android:drawableStart="@drawable/ic_password"
             android:textSize="20sp"
-            android:text="Update password"
+            android:text="@string/update_password"
             android:layout_marginTop="16dp"
             android:layout_marginStart="50dp"
             android:layout_marginEnd="50dp"
@@ -76,7 +76,24 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintTop_toBottomOf="@id/btnUpdatePassword"
-            app:layout_constraintBottom_toTopOf="@id/btnSignout"/>
+            app:layout_constraintBottom_toTopOf="@id/btnChangeLanguage"/>
+
+        <Button
+            android:id="@+id/btnChangeLanguage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button"
+            android:textColor="@color/white"
+            android:drawableStart="@drawable/ic_change"
+            android:textSize="20sp"
+            android:text="@string/change_language"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="50dp"
+            android:layout_marginBottom="30dp"
+            app:layout_constraintBottom_toTopOf="@+id/btnSignout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <Button
             android:id="@+id/btnSignout"

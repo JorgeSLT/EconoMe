@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">EconoMe</string>
+    <string name="change_language">Cambiar Idioma</string>
+    <string name="sign_up">Registrar</string>
+    <string name="email">Correo</string>
+    <string name="password">Contraseña</string>
+    <string name="confirm_password">Confirmar contraseña</string>
+    <string name="sign_in">Iniciar sesión</string>
+    <string name="sign_out">Cerrar sesión</string>
+    <string name="forgot_password">Recordar contraseña</string>
+    <string name="create_account">Crear cuenta</string>
+    <string name="confirm">Confirmar</string>
+    <string name="update">Actualizar</string>
+    <string name="delete_account">Borrar cuenta</string>
+    <string name="go_to_profile">Ir al perfil</string>
+    <string name="create_manager">Crear gestor</string>
+    <string name="navigation_drawer_open">Abrir</string>
+    <string name="navigation_drawer_close">Cerrar</string>
+    <string name="description">Toma el control de tu vida financiera junto con econoMe, el gestor de gastos intuitivo que te facilita rastrear, gestionar y compartir tus esfuerzos de presupuestación con amigos.</string>
+    <string name="new_manager">Nuevo gestor</string>
+    <string name="join_manager">Unirse a un gestor</string>
+    <string name="add_expense">Añadir gasto</string>
+    <string name="delete_expense">Quitar gasto</string>
+    <string name="get_id">Conseguir ID</string>
+    <string name="update_email">Actualizar correo</string>
+    <string name="update_password">Actualizar contraseña</string>
+    <string name="expense_name">Nombre del gasto</string>
+    <string name="amount">Cantidad</string>
+    <string name="manager_name">Nombre del gestor</string>
+    <string name="total_money">Presupuesto</string>
+    <string name="home">Inicio</string>
+    <string name="profile">Perfil</string>
+</resources>

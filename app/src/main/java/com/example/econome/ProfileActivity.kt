@@ -22,6 +22,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import java.util.Locale
 
 class ProfileActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
@@ -79,6 +80,11 @@ class ProfileActivity : AppCompatActivity() {
             openGalleryForImage()
         }
 
+        binding.btnChangeLanguage.setOnClickListener {
+            showLanguageDialog()
+        }
+
+        loadLocale()
         loadManagers()
         loadProfile()
     }
@@ -353,6 +359,40 @@ class ProfileActivity : AppCompatActivity() {
             }
     }
 
+    private fun showLanguageDialog() {
+        val languages = arrayOf("English", "Español")
+        AlertDialog.Builder(this)
+            .setTitle(R.string.change_language)
+            .setItems(languages) { dialog, which ->
+                when (which) {
+                    0 -> setLocale("en") // English
+                    1 -> setLocale("es") // Spanish
+                }
+                recreate() // Recrear la actividad para reflejar el cambio de idioma
+            }.show()
+    }
+
+    private fun setLocale(languageCode: String) {
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+        val config = resources.configuration
+        config.setLocale(locale)
+        resources.updateConfiguration(config, resources.displayMetrics)
+
+        // Guarda la preferencia de idioma
+        val editor = getSharedPreferences("Settings", MODE_PRIVATE).edit()
+        editor.putString("My_Lang", languageCode)
+        editor.apply()
+    }
+
+    // Para cargar el idioma seleccionado al iniciar la actividad
+    private fun loadLocale() {
+        val prefs = getSharedPreferences("Settings", Activity.MODE_PRIVATE)
+        val language = prefs.getString("My_Lang", "")
+        if (language != null) {
+            setLocale(language)
+        }
+    }
 
 
 }

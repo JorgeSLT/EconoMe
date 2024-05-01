@@ -3,11 +3,11 @@
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_home"
-            android:title="Home" />
+            android:title="@string/home" />
         <item
             android:id="@+id/nav_profile"
             android:icon="@drawable/ic_profile"
-            android:title="Profile" />
+            android:title="@string/profile" />
     </group>
     <group android:id="@+id/group_managers">
         <!-- Los ítems de este grupo se añadirán dinámicamente -->

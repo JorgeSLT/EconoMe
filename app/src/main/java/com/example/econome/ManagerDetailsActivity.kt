@@ -78,7 +78,7 @@ class ManagerDetailsActivity : AppCompatActivity() {
                 val totalMoney = document.getDouble("totalMoney") ?: 0.0
                 setTitle(managerName)
                 binding.tvManagerName.text = managerName
-                binding.tvTotalMoney.text = "Total Money: $totalMoney"
+                binding.tvTotalMoney.text = "Total: $totalMoney"
             }
         }
     }
