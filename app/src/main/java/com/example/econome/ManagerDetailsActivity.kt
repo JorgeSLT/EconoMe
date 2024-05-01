@@ -5,6 +5,10 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.econome.databinding.ActivityManagerDetailsBinding
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -28,6 +32,7 @@ class ManagerDetailsActivity : AppCompatActivity() {
 
         setupManagerDetails(managerId)
         setupButtons(managerId)
+        setupPieChart(managerId)
     }
 
     private fun setupManagerDetails(managerId: String) {
@@ -116,5 +121,34 @@ class ManagerDetailsActivity : AppCompatActivity() {
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun setupPieChart(managerId: String) {
+        val pieChart = binding.pieChart
+
+        db.collection("managers").document(managerId).get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                val expensesList = document.get("expenses") as List<Double>
+                val totalMoney = document.getDouble("totalMoney") ?: 0.0
+
+                val entries = ArrayList<PieEntry>()
+                for (expense in expensesList) {
+                    entries.add(PieEntry(expense.toFloat(), "Expense $${expense}"))
+                }
+
+                val dataSet = PieDataSet(entries, "Expenses")
+                dataSet.setColors(*ColorTemplate.JOYFUL_COLORS)  // Set the color template
+                dataSet.valueTextSize = 12f
+
+                val data = PieData(dataSet)
+                pieChart.data = data
+                pieChart.description.isEnabled = false
+                pieChart.centerText = "Total: $${totalMoney}"
+                pieChart.setUsePercentValues(true)
+                pieChart.invalidate()  // Refreshes the pie chart
+            }
+        }.addOnFailureListener {
+            // Handle errors
+        }
     }
 }

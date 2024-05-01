@@ -52,4 +52,13 @@
         app:layout_constraintStart_toStartOf="@id/btnAddExpense"
         android:layout_marginTop="16dp" />
 
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/pieChart"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        app:layout_constraintTop_toBottomOf="@id/btnDeleteManager"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
