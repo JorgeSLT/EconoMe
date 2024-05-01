@@ -7,6 +7,7 @@ import android.graphics.Typeface
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -85,6 +86,10 @@ class ManagerDetailsActivity : AppCompatActivity() {
     private fun setupButtons(managerId: String) {
         binding.btnAddExpense.setOnClickListener {
             showAddExpenseDialog(managerId)
+        }
+
+        binding.btnDelExpense.setOnClickListener {
+            showExpenseDeletionDialog(managerId)
         }
 
         binding.btnDelete.setOnClickListener {
@@ -335,6 +340,44 @@ class ManagerDetailsActivity : AppCompatActivity() {
             }
         } else {
             tvUserName.text = "No User Logged In"
+        }
+    }
+
+    private fun showExpenseDeletionDialog(managerId: String) {
+        val managerDocRef = db.collection("managers").document(managerId)
+        managerDocRef.get().addOnSuccessListener { document ->
+            if (document.exists()) {
+                val expenses = document.get("expenses") as List<Map<String, Any>>?
+                if (expenses.isNullOrEmpty()) {
+                    Toast.makeText(this, "No expenses to delete", Toast.LENGTH_SHORT).show()
+                    return@addOnSuccessListener
+                }
+
+                val expenseNames = expenses.map { it["name"].toString() + ": $" + it["amount"].toString() }
+                val arrayAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, expenseNames)
+
+                AlertDialog.Builder(this)
+                    .setTitle("Select an Expense to Delete")
+                    .setAdapter(arrayAdapter) { dialog, which ->
+                        val selectedExpense = expenses[which]
+                        deleteExpense(managerId, selectedExpense)
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+            }
+        }
+    }
+
+    private fun deleteExpense(managerId: String, expense: Map<String, Any>) {
+        val managerDocRef = db.collection("managers").document(managerId)
+        db.runTransaction { transaction ->
+            transaction.update(managerDocRef, "expenses", FieldValue.arrayRemove(expense))
+            transaction.update(managerDocRef, "currentExpense", FieldValue.increment(-(expense["amount"] as Double)))
+        }.addOnSuccessListener {
+            Toast.makeText(this, "Expense deleted successfully", Toast.LENGTH_SHORT).show()
+            setupPieChart(managerId)  // Refresh the chart
+        }.addOnFailureListener { e ->
+            Toast.makeText(this, "Failed to delete expense: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
         }
     }
 
