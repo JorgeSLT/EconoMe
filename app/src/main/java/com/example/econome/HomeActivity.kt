@@ -5,12 +5,14 @@ import android.os.Bundle
 import android.view.Menu
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import com.bumptech.glide.Glide
 import com.example.econome.databinding.ActivityHomeBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
@@ -226,31 +228,35 @@ class HomeActivity : AppCompatActivity() {
     private fun setupDrawerHeader() {
         val headerView = binding.navView.getHeaderView(0)
         val tvUserName = headerView.findViewById<TextView>(R.id.tvUserName)
+        val imageView = headerView.findViewById<ImageView>(R.id.imageView)
         val currentUser = auth.currentUser
 
         if (currentUser != null) {
-            // Referencia al documento del usuario
             val userDocRef = db.collection("users").document(currentUser.uid)
-
-            // Obtener el documento del usuario
             userDocRef.get().addOnSuccessListener { documentSnapshot ->
                 if (documentSnapshot.exists()) {
-                    // Asignar el nombre del documento a TextView
                     val name = documentSnapshot.getString("name") ?: "No Name Set"
+                    val imageUrl = documentSnapshot.getString("profileImageUrl") ?: ""
                     tvUserName.text = name
+
+                    // Cargar imagen con Glide
+                    Glide.with(this)
+                        .load(imageUrl)
+                        .placeholder(R.mipmap.ic_launcher_round) // Imagen de carga predeterminada
+                        .error(R.mipmap.ic_launcher_round) // Imagen de error
+                        .circleCrop() // Si quieres la imagen en forma de círculo
+                        .into(imageView)
                 } else {
-                    // Manejar caso donde no se encuentra el documento
                     tvUserName.text = "User not found"
                     Toast.makeText(this, "User document does not exist", Toast.LENGTH_SHORT).show()
                 }
             }.addOnFailureListener { e ->
-                // Manejar errores
                 tvUserName.text = "Error fetching user"
                 Toast.makeText(this, "Error fetching user details: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         } else {
-            // Si no hay usuario autenticado, se muestra un texto por defecto o se redirige al login
             tvUserName.text = "No User Logged In"
         }
     }
+
 }
