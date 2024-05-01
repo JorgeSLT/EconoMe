@@ -4,8 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.util.Patterns
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import com.example.econome.databinding.ActivityProfileBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -24,6 +29,26 @@ class ProfileActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
+
+        val toggle = ActionBarDrawerToggle(
+            this, binding.drawerLayout, binding.toolbar,  // Asegúrate de que estos IDs coincidan
+            R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        )
+        binding.drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        // Ahora configura los listeners para tus botones
+        binding.navView.setNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.nav_profile -> {
+                    startActivity(Intent(this, ProfileActivity::class.java))
+                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
+                // Aquí puedes manejar más IDs si los managers dinámicos también necesitan ser manejados
+                else -> false
+            }
+        }
 
         binding.btnSignout.setOnClickListener {
             auth.signOut()
@@ -85,6 +110,7 @@ class ProfileActivity : AppCompatActivity() {
 
         }
 
+        loadManagers()
     }
 
     private fun checkPasswordField(): Boolean{
@@ -113,5 +139,93 @@ class ProfileActivity : AppCompatActivity() {
             return false
         }
         return true
+    }
+
+    private fun loadManagers() {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val userDocRef = db.collection("users").document(currentUser.uid)
+            userDocRef.get().addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val managerNames = document["managerNames"] as? List<String> ?: listOf()
+                    val managerIds = document["managerIds"] as? List<String> ?: listOf()
+                    updateNavigationDrawer(managerNames, managerIds)
+                } else {
+                    Toast.makeText(this, "No managers found.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun updateNavigationDrawer(managerNames: List<String>, managerIds: List<String>) {
+        val menu = binding.navView.menu
+        menu.clear()  // Limpiar el menú para evitar duplicaciones
+        setupDrawerHeader()
+
+        // Añadir ítems de "Home" y "Profile"
+        menu.add(Menu.NONE, R.id.nav_home, Menu.NONE, "Home").setIcon(R.drawable.ic_home).apply {
+            setOnMenuItemClickListener {
+                val intent = Intent(this@ProfileActivity, HomeActivity::class.java)
+                startActivity(intent)
+                finish()
+                true
+            }
+        }
+        menu.add(Menu.NONE, R.id.nav_profile, Menu.NONE, "Profile").setIcon(R.drawable.ic_profile).apply {
+            setOnMenuItemClickListener {
+                val intent = Intent(this@ProfileActivity, ProfileActivity::class.java)
+                startActivity(intent)
+                finish()
+                true
+            }
+        }
+
+        // Añadir un nuevo submenú para los managers
+        val managerGroup = menu.addSubMenu("Your Managers")
+
+        // Añadir cada manager al submenú
+        managerNames.zip(managerIds).forEachIndexed { index, (name, id) ->
+            managerGroup.add(R.id.group_managers, Menu.NONE, index, name).apply {
+                setOnMenuItemClickListener {
+                    val intent = Intent(this@ProfileActivity, ManagerDetailsActivity::class.java).apply {
+                        putExtra("managerId", id)
+                    }
+                    startActivity(intent)
+                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                    true
+                }
+            }
+        }
+    }
+
+    private fun setupDrawerHeader() {
+        val headerView = binding.navView.getHeaderView(0)
+        val tvUserName = headerView.findViewById<TextView>(R.id.tvUserName)
+        val currentUser = auth.currentUser
+
+        if (currentUser != null) {
+            // Referencia al documento del usuario
+            val userDocRef = db.collection("users").document(currentUser.uid)
+
+            // Obtener el documento del usuario
+            userDocRef.get().addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    // Asignar el nombre del documento a TextView
+                    val name = documentSnapshot.getString("name") ?: "No Name Set"
+                    tvUserName.text = name
+                } else {
+                    // Manejar caso donde no se encuentra el documento
+                    tvUserName.text = "User not found"
+                    Toast.makeText(this, "User document does not exist", Toast.LENGTH_SHORT).show()
+                }
+            }.addOnFailureListener { e ->
+                // Manejar errores
+                tvUserName.text = "Error fetching user"
+                Toast.makeText(this, "Error fetching user details: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            // Si no hay usuario autenticado, se muestra un texto por defecto o se redirige al login
+            tvUserName.text = "No User Logged In"
+        }
     }
 }

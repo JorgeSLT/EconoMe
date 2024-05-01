@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -183,22 +184,73 @@ class HomeActivity : AppCompatActivity() {
 
     private fun updateNavigationDrawer(managerNames: List<String>, managerIds: List<String>) {
         val menu = binding.navView.menu
-        menu.findItem(R.id.group_managers)?.let {
-            menu.removeGroup(R.id.group_managers) // Remove the existing group if it exists
-        }
-        val managerGroup = menu.addSubMenu("Your Managers") // Add a new group for managers
+        menu.clear()  // Limpiar el menú para evitar duplicaciones
+        setupDrawerHeader()
 
+        // Añadir ítems de "Home" y "Profile"
+        menu.add(Menu.NONE, R.id.nav_home, Menu.NONE, "Home").setIcon(R.drawable.ic_home).apply {
+            setOnMenuItemClickListener {
+                val intent = Intent(this@HomeActivity, HomeActivity::class.java)
+                startActivity(intent)
+                finish()
+                true
+            }
+        }
+        menu.add(Menu.NONE, R.id.nav_profile, Menu.NONE, "Profile").setIcon(R.drawable.ic_profile).apply {
+            setOnMenuItemClickListener {
+                val intent = Intent(this@HomeActivity, ProfileActivity::class.java)
+                startActivity(intent)
+                finish()
+                true
+            }
+        }
+
+        // Añadir un nuevo submenú para los managers
+        val managerGroup = menu.addSubMenu("Your Managers")
+
+        // Añadir cada manager al submenú
         managerNames.zip(managerIds).forEachIndexed { index, (name, id) ->
-            managerGroup.add(R.id.group_managers, Menu.NONE, Menu.NONE, name).apply {
+            managerGroup.add(R.id.group_managers, Menu.NONE, index, name).apply {
                 setOnMenuItemClickListener {
-                    // Intent to start ManagerDetailsActivity with the manager ID
-                    val intent = Intent(this@HomeActivity, ManagerDetailsActivity::class.java)
-                    intent.putExtra("managerId", id)
+                    val intent = Intent(this@HomeActivity, ManagerDetailsActivity::class.java).apply {
+                        putExtra("managerId", id)
+                    }
                     startActivity(intent)
                     binding.drawerLayout.closeDrawer(GravityCompat.START)
                     true
                 }
             }
+        }
+    }
+
+    private fun setupDrawerHeader() {
+        val headerView = binding.navView.getHeaderView(0)
+        val tvUserName = headerView.findViewById<TextView>(R.id.tvUserName)
+        val currentUser = auth.currentUser
+
+        if (currentUser != null) {
+            // Referencia al documento del usuario
+            val userDocRef = db.collection("users").document(currentUser.uid)
+
+            // Obtener el documento del usuario
+            userDocRef.get().addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    // Asignar el nombre del documento a TextView
+                    val name = documentSnapshot.getString("name") ?: "No Name Set"
+                    tvUserName.text = name
+                } else {
+                    // Manejar caso donde no se encuentra el documento
+                    tvUserName.text = "User not found"
+                    Toast.makeText(this, "User document does not exist", Toast.LENGTH_SHORT).show()
+                }
+            }.addOnFailureListener { e ->
+                // Manejar errores
+                tvUserName.text = "Error fetching user"
+                Toast.makeText(this, "Error fetching user details: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            // Si no hay usuario autenticado, se muestra un texto por defecto o se redirige al login
+            tvUserName.text = "No User Logged In"
         }
     }
 }
